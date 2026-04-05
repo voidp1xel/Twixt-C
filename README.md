@@ -1,55 +1,71 @@
-# Twixt Terminal Engine v2.0 🎮
+# ♟️ Twixt Terminal Engine v2.0
+
+<p align="center">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Twixt_board_geometry.svg" alt="Twixt Geometry" width="400">
+</p>
 
 A high-performance, polished terminal-based implementation of the classic strategy board game **Twixt**, written in clean, modular C.
-
-![Game Preview](https://upload.wikimedia.org/wikipedia/commons/4/4e/Twixt_board_geometry.svg)
-*(Sample Twixt Geometry)*
 
 ---
 
 ## ✨ Features
-- **Polished CLI Interface**: Uses ANSI colors and high-quality characters for a premium terminal experience.
-- **Robust Rule Enforcement**: Handles knight-move validation, link intersections, and boundary constraints.
-- **Efficient Win Detection**: Implements a Breadth-First Search (BFS) to detect winning paths across the board.
-- **Modular Codebase**: Separated engine logic, command parsing, and rendering for easy maintenance.
-- **Safe Command Parsing**: Robust input handling with error messages and instruction support.
+- **Polished CLI Interface**: Rich ANSI color rendering and character output structure for a premium terminal experience.
+- **Robust Rule Enforcement**: Precise knight-move validation using squared Euclidean distance ($d^2 = 5$) and cross-link intersection blocking.
+- **Efficient Win Detection**: Optimized Breadth-First Search (BFS) graph traversal to detect winning paths across the board grid.
+- **Modular Codebase**: Decoupled engine logic, command-line parsing, and ANSI rendering to ensure scalability and straightforward maintenance.
+- **Safe Command Parsing**: Hardened input handlers with verbose error messages and helpful instruction support.
 
 ---
 
 ## 🛠 Project Structure
 | File | Description |
 | :--- | :--- |
-| `main.c` | Entry point and high-level game loop. |
-| `engine.c` | Core game logic (placement, linking, win-checking). |
-| `cmd.c` | User command parser and turn management. |
-| `render.c` | Terminal rendering and ANSI HUD. |
-| `proto.h` | Shared data structures and function prototypes. |
-| `Makefile` | Automated build system. |
+| **`main.c`** | Entry point executing the high-level game loop state machine. |
+| **`engine.c`** | Core engine implementation. Handles coordinate validation, matrix operations, distance calculations, vector intersections via determinants, and bounded BFS. |
+| **`cmd.c`** | Lexical parsing of user string commands into internal game actions. |
+| **`render.c`** | Terminal rendering engine utilizing ANSI escape sequences to draw the HUD and the DIMxDIM grid. |
+| **`proto.h`** | Shared data structures (e.g. `TwixtBoard`, `Link`, `Point`) and system-wide function prototypes. |
+| **`Makefile`** | GNU Make automated build definitions. |
+
+---
+
+## 🔬 Technical Implementation Details
+
+### **Link Collision & Intersection Math**
+The engine ensures links never cross each other by modelling points as vectors in a 2D plane. It checks intersection between two segments `(A, B)` and `(C, D)` using line-intersection determinants:
+`det = (y4-y3)*(x2-x1) - (x4-x3)*(y2-y1)`
+If segments intersect strictly inside bounds (`ua, ub ∈ (0,1)`), the linkage is rejected.
+
+### **Win Detection (BFS)**
+Victory is verified at the end of each turn via a Breadth-First Search (BFS) queue. For the Red player, the engine enqueues all pegs placed at column `0`. It uncovers the linked graph until it hits a node located at column `DIM-1`, achieving $O(V + E)$ efficiency.
+
+### **Knight's Move Validation**
+A valid Twixt link must form a geometric knight's move in chess. Instead of complex branches, the engine simply calculates coordinate delta squares:
+`dist_sq = (p1.r - p2.r)^2 + (p1.c - p2.c)^2`
+The distance must evaluate precisely to `5` to constitute a valid move.
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- A C compiler (GCC or Clang).
-- `make` utility.
-- A terminal with ANSI color support (standard on macOS/Linux).
+- A standard C compiler (`gcc` or `clang`).
+- GNU `make` automation utility.
+- True-Color ANSI terminal emulation.
 
 ### Build & Run
-1. **Clone and enter the directory**:
-   ```bash
-   cd twixt
-   ```
-2. **Build the project**:
-   ```bash
-   make
-   ```
-3. **Execute the game**:
-   ```bash
-   ./twixt_engine
-   ```
+```bash
+# Clone the repository and traverse into it
+cd twixt
 
-To clean build files:
+# Compile the application via Makefile
+make
+
+# Execute the local binary
+./twixt_engine
+```
+
+**Clean build cache:**
 ```bash
 make clean
 ```
@@ -60,10 +76,10 @@ make clean
 
 ### Rules
 - **Objective**: Connect your two home boundaries with a continuous path of linked pegs.
-  - **RED**: Connects **Left** to **Right**.
-  - **BLACK**: Connects **Top** to **Bottom**.
+  - 🔴 **RED**: Connects **Left** to **Right**.
+  - ⚫ **BLACK**: Connects **Top** to **Bottom**.
 - **Turn Flow**:
-  1. Place **exactly one** peg on a valid hole.
+  1. Place **exactly one** peg on an available coordinate.
   2. Create or remove as many links as you want between your own pegs.
   3. Type `done` (or `d`) to end your turn.
 - **Linking**: Links must be a **knight's move** away (2 holes in one direction, 1 in another). Links cannot cross each other.
@@ -82,14 +98,17 @@ make clean
 ---
 
 ## 🎨 Interface Guide
-- `●` : Your pegs (Red or Cyan).
-- `·` : Available holes.
-- `-` / `|` : Boundary lines for Red and Black respectively.
+- **`●`** : Your placed pegs (colored Red or Cyan depending on your team).
+- **`·`** : Free holes available for placement.
+- **`-` / `|`** : Boundary indicators denoting Red and Black home bases.
 
 ---
 
-## 📝 License
-This project is open-source and available under the MIT License.
+## 🔒 License
+
+***Copyright © 2026. All rights reserved.***
+
+This source code is proprietary and confidential. It may not be copied, reproduced, modified, republished, uploaded, posted, transmitted, or distributed in any way without explicit written permission from the author. Unauthorized use, distribution, or reproduction is strictly prohibited. 
 
 ---
 *Created with ❤️ for strategy game enthusiasts.*
